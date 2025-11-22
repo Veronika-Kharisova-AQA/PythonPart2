@@ -160,7 +160,7 @@ print(my_email)
 
 # 9. Добавление даты отправки - добавляет текущую дату
 def add_send_date(email: dict) -> dict:
-    send_date = date.today().strftime('%d/%m/%Y')
+    send_date = date.today().strftime('%Y-%m-%d')
     email['date'] = send_date
     return email
 
@@ -193,16 +193,13 @@ print('Домен отправителя', domain)
 
 def sender_email(recipient_list: list[str], subject: str, message: str, *, sender='default@study.com') -> list[dict]:
     # 1. Проверить что есть получатели
-    if not recipient_list:
-        return []  # 1 способ
-
-    if len(recipient_list) == 0:
-        return []  # 2 способ
+    if not recipient_list or  len(recipient_list) == 0:
+        return []
 
     # 2. Проверить корректность email адресов
     valid_sender = get_correct_email([sender])
-    valid_recipient = get_correct_email(recipient_list)
-    if not valid_sender or not valid_recipient:
+    valid_recipients = get_correct_email(recipient_list)
+    if not valid_sender or not valid_recipients:
         return []
 
     # 3. Проверить заполненность темы и тела письма
@@ -211,8 +208,8 @@ def sender_email(recipient_list: list[str], subject: str, message: str, *, sende
         return []
 
     # 4. Исключить отправку самому себе
-    valid_recipient = [r for r in valid_recipient if r != sender]
-    if not valid_recipient:
+    valid_recipients = [r for r in valid_recipients if r != sender]
+    if not valid_recipients:
         return []
 
     # 5. Нормализовать все текстовые данные
@@ -225,7 +222,7 @@ def sender_email(recipient_list: list[str], subject: str, message: str, *, sende
     # 6. Создать письмо для каждого получателя
     all_emails = []
 
-    for r in valid_recipient:
+    for r in valid_recipients:
         email = create_email(sender=sender, recipient=r, subject=clean_subject, body=clean_body)
 
         # 7. Добавить дату отправки
